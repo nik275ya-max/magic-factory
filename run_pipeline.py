@@ -49,7 +49,7 @@ def main():
     )
     parser.add_argument(
         "--steps", "-s", nargs="+",
-        choices=["scripts", "voice", "stock", "render", "publish", "all"],
+        choices=["scripts", "voice", "stock", "ai", "render", "publish", "all"],
         default=["all"],
         help="Какие шаги выполнять",
     )
@@ -75,15 +75,38 @@ def main():
 
     # План выполнения
     plan = []
+
+    ai_enabled = bool(config.get("ai_video", {}).get("enabled", False))
+
     if run_all or "scripts" in steps:
         plan.append(("scripts", "Генерация скриптов", str(scripts_dir / "generate_scripts.py"), [str(count)]))
     if run_all or "voice" in steps:
         plan.append(("voice", "Генерация озвучки", str(scripts_dir / "generate_voice.py"), ["--all"]))
-    if run_all or "stock" in steps:
-        plan.append(("stock", "Скачивание стоковых видео", str(scripts_dir / "fetch_stock.py"), ["--all"]))
+
+    # В режиме "all": при включённом ai_video генерируем ИИ-клипы ВМЕСТО стока.
+    # По умолчанию рендер предпочтёт ИИ-клипы (video.source: auto).
+    if run_all:
+        if ai_enabled:
+            plan.append(("ai", "Генерация ИИ-видео", str(scripts_dir / "ai_video.py"), ["--all"]))
+        else:
+            plan.append(("stock", "Скачивание стоковых видео", str(scripts_dir / "fetch_stock.py"), ["--all"]))
+    else:
+        if "stock" in steps:
+            plan.append(("stock", "Скачивание стоковых видео", str(scripts_dir / "fetch_stock.py"), ["--all"]))
+        if "ai" in steps:
+            plan.append(("ai", "Генерация ИИ-видео", str(scripts_dir / "ai_video.py"), ["--all", "--force"]))
+
     if run_all or "render" in steps:
         plan.append(("render", "Сборка видео", str(scripts_dir / "render_video.py"), ["--all"]))
-    if run_all or "publish" in steps:
+    # Публикация только если явно запрошен шаг (-s publish) ИЛИ включён auto_publish.
+    auto_publish = bool(config.get("pipeline", {}).get("auto_publish", False))
+    if run_all:
+        if auto_publish:
+            plan.append(("publish", "Публикация", str(scripts_dir / "publish.py"), ["--all"] + args.platforms))
+        else:
+            print("[i] auto_publish=false — публикация пропущена. "
+                  "Для постинга: python run_pipeline.py -s publish")
+    elif "publish" in steps:
         plan.append(("publish", "Публикация", str(scripts_dir / "publish.py"), ["--all"] + args.platforms))
 
     # Показываем план

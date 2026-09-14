@@ -46,6 +46,8 @@ video:
   fps: 30
   codec: "libx264"
   audio_codec: "aac"
+  # Источник клипов: "stock" (Pexels, бесплатно) | "ai" (ИИ-видео) | "auto" (ИИ если есть, иначе сток)
+  source: "auto"
   # Длительность в секундах
   min_duration: 30
   max_duration: 40
@@ -57,6 +59,23 @@ video:
     stroke_width: 3
     position: "center"  # center, bottom, top
 
+# --- ИИ-видео (опционально, из Polza Media API) ---
+# Цены за секунду (RUB):
+#   grok-imagine-video-1-5            1.62 ₽/с  @480p   (самая дешёвая)
+#   bytedance/seedance-2-mini         2.57 ₽/с  @480p text-to-video
+#   bytedance/seedance-2-fast        10.46 ₽/с  @480p
+#   bytedance/seedance-2             12.83 ₽/с  @480p text-to-video
+# Ориентир: ролик 35с ~ 57-90 ₽ (grok / seedance-2-mini)
+ai_video:
+  enabled: false           # true — генерировать ИИ-клипы в пайплайне
+  model: "grok-imagine-video-1-5"
+  resolution: "480p"       # 480p | 720p
+  aspect_ratio: "9:16"     # портрет для Shorts/TikTok
+  scenes_per_video: 4      # сколько сцен-клипов генерировать на видео
+  clip_duration: 10        # длительность одного клипа (сек)
+  generate_audio: false    # некоторые модели умеют генерировать звук
+  price_per_second: 1.62   # для оценки стоимости в логе (RUB/сек)
+
 # --- Фоновая музыка ---
 music:
   # Громкость музыки (относительно голоса, 0.0 - 1.0)
@@ -64,16 +83,18 @@ music:
   directory: "assets/music"
 
 # --- Публикация ---
+# Внимание: платформы включены ТОЛЬКО когда готов постит их вручную/осознанно.
+# По умолчанию выключены — пайплайн ничего не публикует.
 publish:
   telegram:
     bot_token: "YOUR-BOT-TOKEN-HERE"
     channel_id: "@your_channel"
-    enabled: true
+    enabled: false
 
   vk:
     access_token: "YOUR-VK-TOKEN-HERE"
     group_id: 0
-    enabled: true
+    enabled: false
 
   youtube:
     client_secrets_file: "client_secrets.json"
@@ -88,5 +109,6 @@ pipeline:
   batch_size: 10
   # Задержка между публикациями (сек)
   publish_delay: 300
-  # Автоматическая публикация после сборки
-  auto_publish: true
+  # Автоматическая публикация после сборки.
+  # false — пайплайн только производит видео в output/, ничего не постит.
+  auto_publish: false

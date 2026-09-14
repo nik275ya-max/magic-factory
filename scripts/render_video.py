@@ -42,13 +42,27 @@ def get_video_duration(video_path: str) -> float:
     return get_audio_duration(video_path)
 
 
-def find_stock_clips(script_id: str, stock_dir: Path) -> list[Path]:
-    """Находит скачанные стоковые клипы для скрипта."""
-    script_stock = stock_dir / script_id
-    if not script_stock.exists():
-        return []
-    clips = sorted(script_stock.glob("stock_*.mp4"))
-    return clips
+def find_clips(script_id: str, config: dict, data_dir: Path) -> list[Path]:
+    """Находит клипы для скрипта с учётом источника: stock / ai / auto."""
+    ai_clips = []
+    ai_path = data_dir / "ai_video" / script_id
+    if ai_path.exists():
+        ai_clips = sorted(ai_path.glob("*.mp4"))
+
+    stock_clips = []
+    stock_path = data_dir / "stock" / script_id
+    if stock_path.exists():
+        stock_clips = sorted(stock_path.glob("stock_*.mp4"))
+
+    source = config["video"].get("source", "auto")
+
+    if source == "ai":
+        return ai_clips or stock_clips
+    if source == "stock":
+        return stock_clips or ai_clips
+
+    # auto: ИИ-клипы если есть, иначе сток
+    return ai_clips or stock_clips
 
 
 def find_music(music_dir: Path) -> Path | None:
@@ -104,7 +118,6 @@ def render_video(script: dict, config: dict, data_dir: Path, output_dir: Path) -
     """Собирает финальное видео для одного скрипта."""
     script_id = script["id"][:8]
     audio_dir = data_dir / "audio"
-    stock_dir = data_dir / "stock"
 
     # Пути
     audio_path = audio_dir / f"{script_id}.mp3"
@@ -115,10 +128,10 @@ def render_video(script: dict, config: dict, data_dir: Path, output_dir: Path) -
     # Длительность аудио = цельная длительность видео
     audio_duration = get_audio_duration(str(audio_path))
 
-    # Стоковые клипы
-    clips = find_stock_clips(script_id, stock_dir)
+    # Клипы (сток или ИИ — по настройке video.source)
+    clips = find_clips(script_id, config, data_dir)
     if not clips:
-        print(f"    [!] Нет стоковых клипов для {script_id}, пропускаю")
+        print(f"    [!] Нет клипов для {script_id}, пропускаю")
         return None
 
     print(f"    [RENDER] {script_id} — аудио: {audio_duration:.1f}с, клипов: {len(clips)}")
@@ -141,7 +154,7 @@ def render_video(script: dict, config: dict, data_dir: Path, output_dir: Path) -
                 "-an",  # убираем звук из клипов
                 "-c:v", config["video"]["codec"],
                 "-preset", "fast",
-                "-t", "10",  # макс 10 сек на клип
+                "-t", "30",  # макс 30 сек на клип (с запасом для длинных ИИ-сцен)
                 resized,
             ]
             subprocess.run(cmd, capture_output=True, check=False)

@@ -3,6 +3,7 @@ data/scripts/*.json
 data/audio/*.mp3
 data/audio/*.srt
 data/stock/*/
+data/ai_video/*/
 output/*.mp4
 
 # Конфиги с секретами
