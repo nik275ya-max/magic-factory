@@ -1,0 +1,21 @@
+# Папки данных
+data/scripts/*.json
+data/audio/*.mp3
+data/audio/*.srt
+data/stock/*/
+output/*.mp4
+
+# Конфиги с секретами
+config.yaml
+yt_token.json
+client_secrets.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Системные
+.DS_Store
+Thumbs.db

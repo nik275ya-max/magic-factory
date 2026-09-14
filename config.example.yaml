@@ -1,0 +1,92 @@
+# ============================================================
+# Magic Factory - Config (шаблон)
+# Скопируй в config.yaml и впиши свои ключи.
+# config.yaml в .gitignore — секреты в репозиторий не попадут.
+# ============================================================
+
+# --- Polza.AI (для генерации скриптов) ---
+# OpenAI-совместимый API. Ключ: https://polza.ai/dashboard/api-keys
+polza:
+  api_key: "YOUR-POLZA-KEY-HERE"
+  # Дешёвые модели для генерации текста:
+  #   qwen/qwen3.8-flash       ~18₽/1М    (хороший русский, рекомендую)
+  #   z-ai/glm-5.3-flash       ~9₽/1М     (самая дешёвая)
+  #   deepseek/deepseek-v4.1-flash ~18₽/1М
+  #   openai/gpt-4o            ~7.5₽/1М input
+  model: "qwen/qwen3.8-flash"
+  base_url: "https://polza.ai/api/v1"
+  temperature: 0.9
+  max_tokens: 8000
+
+# --- Pexels API (стоковое видео) ---
+pexels:
+  api_key: "YOUR-PEXELS-KEY-HERE"
+  # Сколько клипов скачивать на одно видео
+  clips_per_video: 5
+  # Ориентация видео
+  orientation: "portrait"
+  # Минимальная длительность клипа (сек)
+  min_duration: 5
+
+# --- Озвучка ---
+voice:
+  engine: "edge-tts"
+  # Русские: ru-Ru-DmitryNeural, ru-Ru-SvetlanaNeural
+  # Английские: en-US-GuyNeural, en-US-JennyNeural
+  voice_name: "ru-Ru-DmitryNeural"
+  # Скорость речи (±50%)
+  rate: "+10%"
+  # Громкость
+  volume: "+0%"
+
+# --- Видео ---
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  codec: "libx264"
+  audio_codec: "aac"
+  # Длительность в секундах
+  min_duration: 30
+  max_duration: 40
+  # Стиль текстовых оверлеев
+  text:
+    font_size: 64
+    font_color: "white"
+    stroke_color: "black"
+    stroke_width: 3
+    position: "center"  # center, bottom, top
+
+# --- Фоновая музыка ---
+music:
+  # Громкость музыки (относительно голоса, 0.0 - 1.0)
+  volume: 0.15
+  directory: "assets/music"
+
+# --- Публикация ---
+publish:
+  telegram:
+    bot_token: "YOUR-BOT-TOKEN-HERE"
+    channel_id: "@your_channel"
+    enabled: true
+
+  vk:
+    access_token: "YOUR-VK-TOKEN-HERE"
+    group_id: 0
+    enabled: true
+
+  youtube:
+    client_secrets_file: "client_secrets.json"
+    enabled: false  # включить после настройки OAuth
+
+  tiktok:
+    enabled: false  # включить после одобрения заявки
+
+# --- Настройки пайплайна ---
+pipeline:
+  # Количество видео для генерации за раз
+  batch_size: 10
+  # Задержка между публикациями (сек)
+  publish_delay: 300
+  # Автоматическая публикация после сборки
+  auto_publish: true
