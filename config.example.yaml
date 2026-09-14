@@ -33,7 +33,7 @@ voice:
   engine: "edge-tts"
   # Русские: ru-Ru-DmitryNeural, ru-Ru-SvetlanaNeural
   # Английские: en-US-GuyNeural, en-US-JennyNeural
-  voice_name: "ru-Ru-DmitryNeural"
+  voice_name: "ru-RU-DmitryNeural"
   # Скорость речи (±50%)
   rate: "+10%"
   # Громкость
@@ -57,6 +57,7 @@ video:
     font_color: "white"
     stroke_color: "black"
     stroke_width: 3
+    fontfile: "C:/Windows/Fonts/arial.ttf"
     position: "center"  # center, bottom, top
 
 # --- ИИ-видео (опционально, из Polza Media API) ---
@@ -106,7 +107,7 @@ publish:
 # --- Настройки пайплайна ---
 pipeline:
   # Количество видео для генерации за раз
-  batch_size: 10
+  batch_size: 2
   # Задержка между публикациями (сек)
   publish_delay: 300
   # Автоматическая публикация после сборки.

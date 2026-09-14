@@ -84,6 +84,8 @@ def create_text_overlay_filter(overlays: list, config: dict) -> str:
     font_color = video_cfg["font_color"]
     stroke_color = video_cfg["stroke_color"]
     stroke_width = video_cfg["stroke_width"]
+    fontfile = video_cfg.get("fontfile", "").replace(":", "\\:")
+    font_opt = f"fontfile='{fontfile}':" if fontfile else ""
 
     filters = []
     for i, overlay in enumerate(overlays):
@@ -100,7 +102,7 @@ def create_text_overlay_filter(overlays: list, config: dict) -> str:
             y_pos = "h*0.75-th"
 
         drawtext = (
-            f"drawtext=text='{text}'"
+            f"drawtext={font_opt}text='{text}'"
             f":fontsize={fs}"
             f":fontcolor={font_color}"
             f":borderw={stroke_width}"
@@ -192,9 +194,8 @@ def render_video(script: dict, config: dict, data_dir: Path, output_dir: Path) -
         trimmed_video = os.path.join(tmp, "trimmed.mp4")
         cmd = [
             "ffmpeg", "-y",
-            "-i", concat_video,
-            "-t", str(target_duration),
             "-stream_loop", "-1",  # зацикливаем если видео короче
+            "-i", concat_video,
             "-t", str(target_duration),
             trimmed_video,
         ]
