@@ -43,7 +43,15 @@ def get_video_duration(video_path: str) -> float:
 
 
 def find_clips(script_id: str, config: dict, data_dir: Path) -> list[Path]:
-    """Находит клипы для скрипта с учётом источника: stock / ai / auto."""
+    """Находит клипы для скрипта с учётом источника: assets / stock / ai / auto."""
+    project_root = data_dir.parent
+
+    # Готовые ассеты из assets/stock/{script_id}/
+    assets_clips = []
+    assets_path = project_root / "assets" / "stock" / script_id
+    if assets_path.exists():
+        assets_clips = sorted(assets_path.glob("*.mp4"))
+
     ai_clips = []
     ai_path = data_dir / "ai_video" / script_id
     if ai_path.exists():
@@ -56,13 +64,15 @@ def find_clips(script_id: str, config: dict, data_dir: Path) -> list[Path]:
 
     source = config["video"].get("source", "auto")
 
+    if source == "assets":
+        return assets_clips or stock_clips or ai_clips
     if source == "ai":
-        return ai_clips or stock_clips
+        return ai_clips or assets_clips or stock_clips
     if source == "stock":
-        return stock_clips or ai_clips
+        return stock_clips or assets_clips or ai_clips
 
-    # auto: ИИ-клипы если есть, иначе сток
-    return ai_clips or stock_clips
+    # auto: сначала готовые ассеты, потом ИИ, потом сток
+    return assets_clips or ai_clips or stock_clips
 
 
 def find_music(music_dir: Path) -> Path | None:
@@ -94,12 +104,19 @@ def create_text_overlay_filter(overlays: list, config: dict) -> str:
         style = overlay.get("style", "info")
 
         # Разные стили для разных типов
+        position = video_cfg.get("position", "bottom")
         if style == "hook":
             fs = int(font_size * 1.3)
             y_pos = "h/2-th/2"
-        else:
+        elif position == "top":
             fs = font_size
-            y_pos = "h*0.75-th"
+            y_pos = "50"
+        elif position == "center":
+            fs = font_size
+            y_pos = "h/2-th/2"
+        else:  # bottom
+            fs = font_size
+            y_pos = "h-th-100"
 
         drawtext = (
             f"drawtext={font_opt}text='{text}'"

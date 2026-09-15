@@ -5,6 +5,10 @@ data/audio/*.srt
 data/stock/*/
 data/ai_video/*/
 output/*.mp4
+assets/stock/*/
+
+# Инструменты
+.playwright-mcp/
 
 # Конфиги с секретами
 config.yaml

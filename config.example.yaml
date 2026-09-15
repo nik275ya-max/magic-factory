@@ -46,8 +46,8 @@ video:
   fps: 30
   codec: "libx264"
   audio_codec: "aac"
-  # Источник клипов: "stock" (Pexels, бесплатно) | "ai" (ИИ-видео) | "auto" (ИИ если есть, иначе сток)
-  source: "auto"
+  # Источник клипов: "assets" (готовые из assets/stock/) | "stock" (Pexels) | "ai" (ИИ-видео) | "auto" (ассеты → ИИ → сток)
+  source: "assets"
   # Длительность в секундах
   min_duration: 30
   max_duration: 40
@@ -58,7 +58,7 @@ video:
     stroke_color: "black"
     stroke_width: 3
     fontfile: "C:/Windows/Fonts/arial.ttf"
-    position: "center"  # center, bottom, top
+    position: "bottom"  # center, bottom, top
 
 # --- ИИ-видео (опционально, из Polza Media API) ---
 # Цены за секунду (RUB):
